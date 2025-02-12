@@ -26,6 +26,4 @@ interface Calculator {
     // Clear input
     fun clear()
 
-    // Clear entire calculator state
-    fun reset()
 }

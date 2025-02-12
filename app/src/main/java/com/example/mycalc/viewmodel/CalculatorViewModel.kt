@@ -2,31 +2,102 @@ package com.example.mycalc.viewmodel
 
 import androidx.databinding.BaseObservable
 import androidx.databinding.ObservableField
+import kotlin.math.abs
 
 class CalculatorViewModel: BaseObservable(), Calculator {
     override var display = ObservableField<String>()
 
+    val eps = 0.000000001
+    val e = 1000000.0
+    var wasPoint: Boolean = false
+    var wasСompute: Boolean = false
+    var digit: Double = 0.0
+    var digit2: String = ""
+    var lastDigit: Double? = 0.0
+    var k: Int = 10
+    var operation: Operation? = null
+
     override fun addDigit(dig: Int) {
-        TODO("Not yet implemented")
+        if (!wasСompute){
+            if (wasPoint){
+                digit2 += dig
+                digit += dig / (k + 0.0)
+                k*=10
+                display.set(""+digit.toInt()+"."+digit2)
+            }else{
+                digit = 10 * digit + dig
+                display.set(""+digit.toInt())
+            }
+        }
     }
 
     override fun addPoint() {
-        TODO("Not yet implemented")
+        if (!wasСompute){
+            wasPoint = true
+            display.set(""+digit.toInt()+".")
+        }
     }
 
     override fun addOperation(op: Operation) {
-        TODO("Not yet implemented")
+        if (operation != null){
+            compute()
+        }
+        lastDigit = digit
+        digit = 0.0
+        digit2 = ""
+        k = 10
+        wasPoint = false
+        wasСompute = false
+        operation = op
     }
 
     override fun compute() {
-        TODO("Not yet implemented")
+        var b = true
+        if (lastDigit != null){
+            when (operation) {
+                Operation.ADD -> {
+                    digit+=lastDigit!!
+                }
+                Operation.SUB -> {
+                    digit = lastDigit!! - digit
+                }
+                Operation.MUL -> {
+                    digit*=lastDigit!!
+                }
+                Operation.DIV -> {
+                    if (digit != 0.0){
+                        digit = lastDigit!! / digit
+                    }
+                    else{
+                        display.set("ERROR")
+                        digit = 0.0
+                        b = false
+                    }
+                }
+                else -> {}
+            }
+            lastDigit = null
+            wasСompute = true
+            if (b){
+                var dInt1 = digit.toInt()
+                if (abs(dInt1 - digit) < eps){
+                    display.set(""+digit.toInt())
+                }else{
+                    display.set(""+(digit*e).toInt() / e)
+                }
+            }
+        }
     }
 
     override fun clear() {
-        TODO("Not yet implemented")
+        lastDigit = null
+        digit = 0.0
+        digit2 = ""
+        k = 10
+        wasPoint = false
+        wasСompute = false
+        operation = null
+        display.set("0")
     }
 
-    override fun reset() {
-        TODO("Not yet implemented")
-    }
 }
